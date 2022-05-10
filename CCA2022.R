@@ -286,29 +286,63 @@ dat$IV7 <- ((dat$AgentQ73+dat$AgentQ76)/2)
 ## Testing the Conditions in P-E
 ###################################
 
+#Correlations
+library(Hmisc)
+datcorr <- select(dat, IV1, IV3, IV4, IV5, IV6, IV7, PETotal)
+
+# Correlations with P values to see significance
+correlations <- rcorr(as.matrix(select(datcorr, 1:6, 7)))
+
+# Visualize the correlations; insignificant are left blank
+library(corrplot)
+corrplot(correlations$r, type = "upper", order = "hclust",
+         p.mat = correlations$r, sig.level = 0.05, insig = "blank")
+#seems like all has significant negative correlations
+
+#Check for actual correlations
+cor.test(dat$IV1, dat$PETotal) #p <.001; r = -.35
+#The more embedded the instructor is, the more likely they will use an elicitive approach
+
+cor.test(dat$IV3, dat$PETotal) # p<.01, r = -.28
+#The more Western the stakeholder are perceived to be, the more likely they will use an elicitive approach
+
+cor.test(dat$IV4, dat$PETotal) #n.s.
+
+cor.test(dat$IV5, dat$PETotal) # p <.01, r = -.29
+# The less challenging and demanding the context is (mono-cultural, have no functional systems, and local decision making are unjust)
+# the more likely an elicitive approach will be used. 
+
+cor.test(dat$IV6, dat$PETotal) # p<.001, r = -.40
+#In looser culture with fewer constraints, instructors are more likely to use elicitive methods
+
+cor.test(dat$IV7, dat$PETotal) # p<.001, r = .31
+#The higher the agent tolerance for ambiguity, the more likely they will use an elicitive approach
+
+####################
+#Individual Items
+#######################
+
 
 #************Agent***************#
 
 
 ###Create Variables based on 
-#ASkill <- data.frame(dat$AgentQ67, dat$AgentQ66, dat$AgentQ70, dat$AgentQ71)
-#alpha(ASkill)
+ASkill <- data.frame(dat$AgentQ67, dat$AgentQ66, dat$AgentQ70, dat$AgentQ71)
+alpha(ASkill)
 #alpha of .86; merge into one variable
-#dat$ASkill <- ((dat$AgentQ67 + dat$AgentQ66 + dat$AgentQ70 + dat$AgentQ71)/4)
-
-##IV1 
+dat$ASkill <- ((dat$AgentQ67 + dat$AgentQ66 + dat$AgentQ70 + dat$AgentQ71)/4)
 
 #Visualization
-ggplot(dat, aes(x = IV1, y = PETotal)) +
+ggplot(dat, aes(x = A$Skill, y = PETotal)) +
   geom_point()
 #maybe polynomial
-cor.test(dat$IV1, dat$PETotal) #p <.001, r = -.35
-#The more embedded the agent is in the cultural context, the more likely they are to use prescriptive
+cor.test(dat$ASkill, dat$PETotal) 
 
-ModelSkillPE <- lm(PETotal ~ IV1, data = dat)
+
+ModelSkillPE <- lm(PETotal ~ ASkill, data = dat)
 summary(ModelSkillPE)
 #Significant, moving onto polynomial
-ModelSkillPE2 <- lm(PETotal ~ polym(IV1, degree = 2, raw = TRUE), data = dat)
+ModelSkillPE2 <- lm(PETotal ~ polym(ASkill, degree = 2, raw = TRUE), data = dat)
 summary(ModelSkillPE2)
 
 #Compare Models
@@ -316,9 +350,9 @@ anova(ModelSkillPE, ModelSkillPE2)
 #Significant difference, move with polynomial
 
 
-#ggplot(dat, aes(x = ASkill, y = PEContent)) +
-#  geom_point() #visualize
-#cor.test(dat$ASkill, dat$PETotal) #p <.001, r = -.43
+ggplot(dat, aes(x = ASkill, y = PEContent)) +
+  geom_point() #visualize
+cor.test(dat$ASkill, dat$PETotal) #p <.001, r = -.43
 #The more cross-cultural skills, the more they use prescriptive
 #the less cross-cultural skills, the more they use elicitive
 #This is in line with our assumptions
@@ -436,6 +470,95 @@ cor.test(dat$ProcessQ31, dat$PETotal) #p =.01; r = .23
 # In line w predictions, the more fitting with local community, the more likely to be elicitive
 
 
+
+###################
+### One-way ANOVA
+####################
+library(car)
+library(emmeans) #for pairwise comparison later
+
+#Create P-E Group Levels
+summary(dat$PETotal) #use these numbers to divide into groups
+dat$PEGroup <- cut(dat$PETotal,
+                   breaks = c(-Inf, 3.25, 4.625, Inf),
+                   levels = c(1,2,3),
+                   labels = c("P", "H", "E"))
+
+summary(dat$PEGroup) #P has 38; H has 51; E has 28
+#Create weights for the groups due to uneven sizes
+library(plyr)
+dat$PEGroupWts <- revalue(dat$PEGroup, c("P"="1.34", "H"="1", "E"="1.82"))
+dat$PEWts <- as.numeric(as.vector(dat$PEGroupWts)) #turn into numeric
+
+#Change to effect coding instead of dummy coding
+options()$contrasts
+options(contrasts = c("contr.sum", "contr.poly"))
+
+####### testing for the DVs against PE ###########
+
+### DV1 ###
+#full model
+lmDV1F <- lm(DV1 ~ PEGroup, data = dat, weights = PEWts) #using weighted analysis
+summary(lmDV1F)
+
+Anova(lmDV1F, type = 3)
+# The PE group does not have significant effect on DV5 
+
+
+######DV2#######
+lmDV2F <- lm(DV2 ~ PEGroup, data = dat, weights = PEWts) #using weighted analysis
+summary(lmDV2F)
+#n.s.
+
+######DV3#######
+lmDV3F <- lm(DV3 ~ PEGroup, data = dat, weights = PEWts) #using weighted analysis
+summary(lmDV3F)
+#n.s
+
+######DV4#######
+lmDV4F <- lm(DV4 ~ PEGroup, data = dat, weights = PEWts) #using weighted analysis
+summary(lmDV4F)
+#n.s.
+
+
+####DV5#######
+lmDV5F <- lm(DV5 ~ PEGroup, data = dat, weights = PEWts) #using weighted analysis
+summary(lmDV5F)
+#n.s.
+
+######DV6#######
+lmDV6F <- lm(DV6 ~ PEGroup, data = dat, weights = PEWts) #using weighted analysis
+summary(lmDV6F)
+#F(2,111) = 4.69; p = .01
+#significant
+Anova(lmDV6F, type = 3)
+#significant differences among PE groups
+
+# Now follow up with pairwise comparisons.
+emm6 <- emmeans(object = lmDV6F,
+                specs = ~ PEGroup) #only need the full model here
+#want groups to be broken up by P-E Approach
+
+emm6 # individual means 
+
+pairs(x = emm6, 
+      adjust = "Bonferroni")  # Bonferroni-adjusted. Ok to interpret.
+#Significant difference between P (M = 4.28) and E (mean = 3.48) (p <.01)
+#n.s. for hybrid (m = 3.97)
+#Elicitive methods are significantly less efficient than Prescriptive
+
+
+####Coded Effectiveness#######
+lmDV8F <- lm(DV8_QualiGenEff ~ PEGroup, data = dat, weights = PEWts) #using weighted analysis
+summary(lmDV8F)
+#n.s.
+
+######Coded Sustainability & Learning#####
+lmDV9F <- lm(DV9_QualiSustain ~ PEGroup, data = dat, weights = PEWts) #using weighted analysis
+summary(lmDV9F)
+#n.s.
+
+
 ########################################################################
 #Mutliple Hierarchical Regression Controlling for Individual Differences
 ########################################################################
@@ -518,7 +641,9 @@ anova(PControl31, AControlPE) #significant
 #ASkill and APartner moves in the same direction, so we can just add them together
 dat$AgentTotal <- ((dat$ASkill+dat$APartner)/2)
 
-
+##################
+##ANCOVA
+###################
 
 #Now for Agent, PE, and Outcomes using linear
 #DV1
@@ -822,39 +947,7 @@ cor.test(dat$DV7_QualiPE, dat$DV9_QualiSustain)
 
 
 
-###################
-###ANOVA
-####################
-#Create P-E Group Levels
-dat$PEGroup <- cut(dat$PETotal,
-                   breaks = c(-Inf, 3.323, 4.642, Inf),
-                   levels = c(1,2,3),
-                   labels = c("P", "H", "E"))
 
-#Create weights for the groups
-library(plyr)
-dat$PEGroupWts <- revalue(dat$PEGroup, c("P"="2", "H"="1", "E"="2"))
-dat$PEWts <- as.numeric(as.vector(dat$PEGroupWts)) #turn into numeric
-
-
-#testing for DV5, the only one not significant
-#full model
-lmDV5F <- lm(DV5 ~ PEGroup, data = dat, weights = PEWts) #using weighted analysis
-#restricted model
-lmDV5R <- lm(DV5 ~ 1, data = dat)
-
-#Boxplot
-boxplot(dat$DV5 ~ dat$PEGroup,
-        xlab = "Approach Types",
-        ylab = "Cost-Effectiveness")
-
-anova(lmDV5R, lmDV5F) #not significant
-
-oneway.test(formula = DV5 ~ PEGroup,
-            data = dat,
-            na.action = "na.omit",
-            var.equal = FALSE)
-#Welch test is also not significant
 
 #########################
 #Moderation Analysis
