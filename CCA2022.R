@@ -155,6 +155,10 @@ persp(ModelACOSCO_2, ACO~SCO, zlab = "PETotal")
 # when there is a fit in instructors and stakeholders cultural orientation,  will use elicitive process
 # when there is a misfit, they will use prescriptive process
 
+
+
+
+
 ####Linear Regression for Power-Distance
 Model7554 <- lm(PETotal ~ AgentQ75 + StakeQ54, data = dat)
 summary(Model7554)
@@ -502,7 +506,7 @@ lmDV1F <- lm(DV1 ~ PEGroup, data = dat, weights = PEWts) #using weighted analysi
 summary(lmDV1F)
 
 Anova(lmDV1F, type = 3)
-# The PE group does not have significant effect on DV5 
+# The PE group does not have significant effect on DV1 
 
 
 ######DV2#######
@@ -558,394 +562,640 @@ lmDV9F <- lm(DV9_QualiSustain ~ PEGroup, data = dat, weights = PEWts) #using wei
 summary(lmDV9F)
 #n.s.
 
-
-########################################################################
-#Mutliple Hierarchical Regression Controlling for Individual Differences
-########################################################################
-
-
-##First check correlations of Agent w P-E Total
-cor.test(dat$AgentTotal, dat$PETotal) #significant, p <.001 , r = -.41
-
-#Models
-
-AControlPE <- lm(PETotal~ AgentTotal, data = dat) #Control for agent differences
-summary(AControlPE)
-
-#****************Stakeholders**************#
-
-##Urgent Objectives
-SControl52 <- lm(PETotal ~ AgentTotal + StakeQ52, data = dat)
-summary(SControl52)
-anova(SControl52, AControlPE) #Still not significant
-
-
-##
-SControl60 <- lm(PETotal ~ AgentTotal + StakeQ60, data = dat)
-summary(SControl60)
-anova(SControl60, AControlPE) #Not significant
-
-
-##
-SControl61 <- lm(PETotal ~ AgentTotal + StakeQ61, data = dat)
-summary(SControl61)
-anova(SControl61, AControlPE) #Not significant
-
-##
-SControl62 <- lm(PETotal ~ AgentTotal + StakeQ62, data = dat)
-summary(SControl62)
-anova(SControl62, AControlPE) #Also n.s.
-#No significance in Stakeholder conditions
-
-##All the contradictory findings are no longer significant when controlling for Agent Differences
-
-
-
-#************Context********#
-#*n.s are 23, 24, 27
-
-CControl23 <- lm(PETotal ~ AgentTotal + ContextQ23, data = dat)
-summary(CControl23)
-anova(CControl23, AControlPE) #still n.s.
-
-CControl24 <- lm(PETotal ~ AgentTotal + ContextQ24, data = dat)
-summary(CControl24)
-anova(CControl24, AControlPE) #still ns
-
-CControl27 <- lm(PETotal ~ AgentTotal + ContextQ27, data = dat)
-summary(CControl27)
-anova(CControl27, AControlPE) #still ns
-
-#********Process***************#
-
-PControl30 <- lm(PETotal ~ AgentTotal + ProcessQ30, data = dat)
-summary(PControl30)
-anova(PControl30, AControlPE) #significant
-
-
-PControl31 <- lm(PETotal ~ AgentTotal + ProcessQ31, data = dat)
-summary(PControl31)
-anova(PControl31, AControlPE) #significant
-
-
-#####################################################
-####Conditions with Approach in Outcomes Predictions
-######################################################
-
-
-#We will only account for ones that are significant and in line with our predictions
-
-
-#*******Agent******#
-
-#ASkill and APartner moves in the same direction, so we can just add them together
-dat$AgentTotal <- ((dat$ASkill+dat$APartner)/2)
-
-##################
-##ANCOVA
-###################
-
-#Now for Agent, PE, and Outcomes using linear
-#DV1
-ModelAPEOut1 <- lm(DV1 ~ AgentTotal + PETotal, data = dat)
-summary(ModelAPEOut1)
-#Significant, moving onto polynomial
-ModelAPEOut12 <- lm(DV1 ~ polym(AgentTotal + PETotal, degree = 2, raw = TRUE), data = dat)
-summary(ModelAPEOut12)
-#Significant
-ModelAPEOut13 <- lm(DV1 ~ polym(AgentTotal + PETotal, degree = 3, raw = TRUE), data = dat)
-summary(ModelAPEOut13)
-
-#Compare Models
-anova(ModelAPEOut1, ModelAPEOut12) #not significant, stick with linear
-anova(ModelAPEOut12, ModelAPEOut13)
-#not significant, sticking with Model 2
-
-#Visualization 
-par(mfrow=c(1,3))
-image(ModelAPEOut12, AgentTotal~PETotal)
-contour(ModelAPEOut12, AgentTotal~PETotal)
-persp(ModelAPEOut12, AgentTotal~PETotal, zlab = "Effectiveness")
-# Agents with high cross cultural facilitation skills tend to produce more effective outcomes
-#Agents using more elicitive methods tend to produce more effective outcomes
-
-
-#DV2
-ModelAPEOut2 <- lm(DV2 ~ AgentTotal + PETotal, data = dat)
-summary(ModelAPEOut2)
-#Significant, moving onto polynomial
-ModelAPEOut22 <- lm(DV2 ~ polym(AgentTotal + PETotal, degree = 2, raw = TRUE), data = dat)
-summary(ModelAPEOut22)
-#Significant
-ModelAPEOut23 <- lm(DV2 ~ polym(AgentTotal + PETotal, degree = 3, raw = TRUE), data = dat)
-summary(ModelAPEOut23)
-
-#Compare Models
-anova(ModelAPEOut2, ModelAPEOut22) #not significant, stay w linear
-
-#Visualization 
-par(mfrow=c(1,3))
-image(ModelAPEOut2, AgentTotal~PETotal)
-contour(ModelAPEOut2, AgentTotal~PETotal)
-persp(ModelAPEOut2, AgentTotal~PETotal, zlab = "Effectiveness")
-# Agents with high cross cultural facilitation skills tend to produce more effective outcomes
-#Agents using more elicitive methods tend to produce more effective outcomes
-
-
-
-#*************Context*********#
-
-#Functional Local System, Tightness-Looseness, and Cultural Salience moves in the same direction
-#Can just add them together
-dat$ContextTotal <- ((dat$ContextQ25 + dat$ContextQ27 + dat$ContextQ28)/3)
-
-#DV1
-ModelCPEOut1 <- lm(DV1 ~ ContextTotal + PETotal, data = dat)
-summary(ModelCPEOut1)
-#Significant, moving onto polynomial
-ModelCPEOut12 <- lm(DV1 ~ polym(ContextTotal + PETotal, degree = 2, raw = TRUE), data = dat)
-summary(ModelCPEOut12)
-#Significant
-ModelCPEOut13 <- lm(DV1 ~ polym(ContextTotal + PETotal, degree = 3, raw = TRUE), data = dat)
-summary(ModelCPEOut13)
-
-#Compare Models
-anova(ModelCPEOut1, ModelCPEOut12) #not significant, stick with linear
-
-
-#Visualization 
-par(mfrow=c(1,3))
-image(ModelCPEOut1, ContextTotal~PETotal)
-contour(ModelCPEOut12, ContextTotal~PETotal)
-persp(ModelCPEOut12, ContextTotal~PETotal, zlab = "Effectiveness")
-
-
-
 ###############################################
-#Multiple Hierarchical Regression for Individual differences
+#ANCOVA
 ###############################################
 
 
-##First check correlations of Agent w all DVs
-cor.test(dat$AgentTotal, dat$DV1) #slightly significant, p = .051, r = .18
-cor.test(dat$AgentTotal, dat$DV2) #significant, p <.001, r = .33
-cor.test(dat$AgentTotal, dat$DV3) #significant, p <.01, r = .26
-cor.test(dat$AgentTotal, dat$DV4) #NOT significant
-cor.test(dat$AgentTotal, dat$DV5) #significant, p = .02, r = .21
-cor.test(dat$AgentTotal, dat$DV6) #significant, p <.001, r = .44
-cor.test(dat$AgentTotal, dat$DV8_QualiGenEff) #significant, p <.01, r = .32
-cor.test(dat$AgentTotal, dat$DV9_QualiSustain) #not significant
-#Run hierarchical for all Data except DV4
-#Run with other variables that are still significant after controlling for Agent
+#Check for a strong linear relationship with the outcome
+dat2 <- select(dat, IV1, IV3, IV4, IV5, IV6, IV7, PETotal, 
+                         DV1, DV2, DV3, DV4, DV5, DV6, DV8_QualiGenEff, DV9_QualiSustain)
 
-##check correlations of Context w all DVs
-cor.test(dat$ContextTotal, dat$DV1) # significant, p = .03, r = .21
-cor.test(dat$ContextTotal, dat$DV2) #significant, p < .01, r = .27
-cor.test(dat$ContextTotal, dat$DV3) #significant, p = .04, r = .20
-cor.test(dat$ContextTotal, dat$DV4) #significant, p =.03, r = .21
-cor.test(dat$ContextTotal, dat$DV5) #Not significant
-cor.test(dat$ContextTotal, dat$DV6) #Not significant
-cor.test(dat$ContextTotal, dat$DV8_QualiGenEff) #kinda significant; p =.05, r = .22
-cor.test(dat$ContextTotal, dat$DV9_QualiSustain) # not significant
+# Correlations with P values to see significance
+correlations2 <- rcorr(as.matrix(dat2))
+cor(dat2, use = "complete.obs") #tell it to ignore NA variables
 
+# Visualize the correlations; insignificant are left blank
+corrplot(correlations2$r, type = "upper", order = "original", 
+         p.mat = correlations$r, sig.level = 0.05, insig = "blank")
+corrplot(cor(dat2, use = "complete.obs"))
+#Seems like most IVs are somewhat correlated with the DVs so we can run hierarchical regression
 
-##check correlations of Stakeholders Cultural Orientation w all DVs
-cor.test(dat$SCO, dat$DV1) #Ns
-cor.test(dat$SCO, dat$DV2) #NS
-cor.test(dat$SCO, dat$DV3) #ns
-cor.test(dat$SCO, dat$DV4) #ns
-cor.test(dat$SCO, dat$DV5) #ns
-cor.test(dat$SCO, dat$DV6) #significant, p <.001; r = .42
-cor.test(dat$SCO, dat$DV8_QualiGenEff) #ns
-cor.test(dat$SCO, dat$DV9_QualiSustain) #ns
-
-
-
-#Also check correlations of P-E w all DVs
-cor.test(dat$PETotal, dat$DV1) #not significant
-cor.test(dat$PETotal, dat$DV2) #not significant
-cor.test(dat$PETotal, dat$DV3) #ns
-cor.test(dat$PETotal, dat$DV4) #significant at .02, r =.22
-cor.test(dat$PETotal, dat$DV5) #ns
-cor.test(dat$PETotal, dat$DV6) #significant at p <.001, r = -.41
-cor.test(dat$PETotal, dat$DV8_QualiGenEff) #ns
-cor.test(dat$PETotal, dat$DV9_QualiSustain) #ns
-
-#Visualize the data
-
-ggplot(data = dat, mapping = aes(PEGroup,DV1)) +
-  geom_boxplot() #looks kind similar
-ggplot(data = dat, mapping = aes(PEGroup,DV2)) +
-  geom_boxplot() # more variances
-ggplot(data = dat, mapping = aes(PEGroup,DV3)) +
-  geom_boxplot() #similar ish
-ggplot(data = dat, mapping = aes(PEGroup,DV4)) +
-  geom_boxplot() #significant difference in P
 
 ###########Models################
 
-####DV1 Effectiveness####
+##DV1 (Example of full process)#####
 
-AControl1 <- lm(DV1~ AgentTotal, data = dat) #Control for agent differences
+# Consider controlling for all IVs as covariates. 
+# From the correlations plot, it seems that all IVs have a strong linear relationship w DV1
+
+plot(DV1 ~ IV1,
+     data = dat,
+     xlab = "Agent Embeddedness",
+     ylab = "Self-Rated Effectiveness",
+     pch = c(19:0)[(as.character(dat$PEGroup) == "T") + 1],
+     col = (as.character(dat$PEGroup) == "T") + 1,
+     main = "Model Assuming No Interaction")
+legend(x = "bottomright",
+       lwd = 2, col = 1:2, pch = c(19:0), lty = 1:2,
+       legend = c("P", "H", "E"), seg.len = 4)
+#not really separating into different colors... 
+#need to double check this code
+
+# The test of the slope coefficient from a regression 
+# will test if the linear relationship 
+# is significant. It is not significant 
+# (p-value = .0546).
+lm_slope11 <- lm(DV1 ~ IV1+IV3+IV4+IV5+IV6+IV7, data = dat, weights = PEWts)
+
+summary(lm_slope11)
+### Can stop here, but will leave full process as a model
+
+
+# The interaction is NOT significant, which does not violates the 
+# assumption of no treatment by covariate interaction
+# in ANCOVA. 
+
+# ANCOVA full model 
+lmF11 <- lm(DV1 ~ IV1+IV3+IV4+IV5+IV6+IV7 + PEGroup, data = dat, weights = PEWts)
+Anova(lmF11, type = 3)
+summary(lmF11) #model parameters
+#it is significant for PE
+
+# Fit emmeans here to get estimated marginal
+# means for each group, controlling for the
+# linear relationship between IV1 and DV1.
+# By default, the emmeans() function will plug 
+# in the means (averages) of any continuous
+# covariates that are averaged over. Here, we
+# ask it to average over IV1, so it uses the 
+# mean of that variable by default.
+emm11 <- emmeans(object = lmF11,
+                specs = ~ PEGroup)
+emm11
+
+pairs(emm11, adjust = "Holm")
+#when controlling for contextual factors
+#significant differences between H (M = 4.31) and E (M = 4.84) for Self-Rated Effectiveness
+# p =.03
+#n.s. for Prescriptive (M = 4.47)
+
+
+##DV 2#####
+
+# Consider controlling for all IVs as covariates. 
+# From the correlations plot, it seems that all but IV7 have a strong linear relationship w DV2
+
+
+# The test of the slope coefficient from a regression 
+# will test if the linear relationship 
+# is significant. It is very significant 
+# (p-value <.01).
+lm_slope21 <- lm(DV2 ~ IV1+IV3+IV4+IV5+IV6, data = dat, weights = PEWts)
+summary(lm_slope21)
+
+
+# ANCOVA full model 
+lmF21 <- lm(DV2 ~ IV1+IV3+IV4+IV5+IV6 + PEGroup, data = dat, weights = PEWts)
+Anova(lmF21, type = 3)
+summary(lmF21) #model parameters
+#it is NOT significant for PE
+#so PE does not explain additional variance with DV2
+
+
+##DV 3#####
+
+# Consider controlling for all IVs as covariates. 
+# From the correlations plot, it seems that all IVs have a strong linear relationship w DV3
+
+
+# The test of the slope coefficient from a regression 
+# will test if the linear relationship 
+# is significant. It is not significant 
+lm_slope31 <- lm(DV3 ~ IV1+IV3+IV4+IV5+IV6+IV7, data = dat, weights = PEWts)
+summary(lm_slope31)
+
+
+# ANCOVA full model 
+lmF31 <- lm(DV3 ~ IV1+IV3+IV4+IV5+IV6+IV7 + PEGroup, data = dat, weights = PEWts)
+Anova(lmF31, type = 3)
+summary(lmF31) #model parameters
+#it is significant for PE
+emm31 <- emmeans(object = lmF31,
+                 specs = ~ PEGroup)
+emm31
+
+pairs(emm31, adjust = "Holm")
+#Significant differences between H (4.38) and E (4.97)
+# p =.02
+#no significant differences for P (4.52)
+
+
+####DV4#####
+# Consider controlling for all IVs as covariates. 
+# From the correlations plot, it seems that all IVs have a strong linear relationship w DV4
+
+# ANCOVA full model 
+lmF41 <- lm(DV4 ~ IV1+IV3+IV4+IV5+IV6+IV7 + PEGroup, data = dat, weights = PEWts)
+Anova(lmF41, type = 3)
+summary(lmF41) #model parameters
+#it is NOT significant for PE
+#PE did not explain additional variance in this when controlling for other factors
+
+
+####DV5#####
+# Consider controlling for all IVs as covariates. 
+# From the correlations plot, it seems that all but IV5 have a  linear relationship w DV5
+
+# ANCOVA full model 
+lmF51 <- lm(DV5 ~ IV1+IV3+IV4+IV6+IV7 + PEGroup, data = dat, weights = PEWts)
+Anova(lmF51, type = 3)
+summary(lmF51) #model parameters
+#it is NOT significant for PE
+#PE did not explain additional variance in this when controlling for other factors
+
+###Skip DV6 because already significant####
+
+####DV8#####
+#All but IV4
+lmF81 <- lm(DV8_QualiGenEff ~ IV1+IV3+IV5+IV6+IV7 + PEGroup, data = dat, weights = PEWts)
+Anova(lmF81, type = 3)
+summary(lmF81)
+#n.s. 
+#did not explain additional variance
+
+
+#####DV9#######
+#All but IV5
+lmF91 <- lm(DV9_QualiSustain ~ IV1+IV3+IV4+IV6+IV7 + PEGroup, data = dat, weights = PEWts)
+Anova(lmF91, type = 3)
+summary(lmF91)
+
+
+####################################
+#Multiple Hierarchical Regression
+####################################
+
+#Check for correlations
+cor.test(dat$PETotal, dat$DV1) #ns
+cor.test(dat$PETotal, dat$DV2) #ns
+cor.test(dat$PETotal, dat$DV3) #ns
+cor.test(dat$PETotal, dat$DV4) #ns
+cor.test(dat$PETotal, dat$DV5) #ns
+cor.test(dat$PETotal, dat$DV6) #significant at p =.03, r = -.20
+
+###DV1#######
+AControl1 <- lm(DV1~ IV1+IV3+IV4+IV5+IV6+IV7, data = dat) #Control for context differences
 summary(AControl1)
 
-ModelPE1 <- lm(DV1~AgentTotal + PETotal, data = dat)
+ModelPE1 <- lm(DV1~IV1+IV3+IV4+IV5+IV6+IV7 + PETotal, data = dat)
 summary(ModelPE1) #PE Significant
 
-ModelContext1 <- lm(DV1 ~ AgentTotal + ContextTotal + PETotal, data = dat) #Control for Context
-summary(ModelContext1) #PE significant
 
-ModelProcess1 <- lm(DV1 ~ AgentTotal + ContextTotal + ProcessQ30 + ProcessQ31 + PETotal, data = dat)
-summary(ModelProcess1) #PE Significant
-
-anova(AControl1, ModelPE1, ModelContext1, ModelProcess1) #Model Context has the most meaningful changes
-#When controlling for Individual differences, and context factors, P-E Model significantly predict DV1
+anova(AControl1, ModelPE1) #Model 2 has significant differences
+#When controlling for external factors, P-E Process significantly predict DV1
 
 
-
-######DV2 Sensitivity & Satisfaction##########
-
-
-AControl2 <- lm(DV2~ AgentTotal, data = dat) #Control for agent differences
+###DV2#######
+AControl2 <- lm(DV2~ IV1+IV3+IV4+IV5+IV6, data = dat) #Control for context differences
 summary(AControl2)
 
-ModelPE2 <- lm(DV2~AgentTotal + PETotal, data = dat)
+ModelPE2 <- lm(DV2~IV1+IV3+IV4+IV5+IV6 + PETotal, data = dat)
 summary(ModelPE2) #PE Significant
 
-ModelContext2 <- lm(DV2 ~ AgentTotal + ContextTotal + PETotal, data = dat)
-summary(ModelContext2) #PE significant
 
-ModelProcess2 <- lm(DV2 ~ AgentTotal + ContextTotal + ProcessQ30 + ProcessQ31 + PETotal, data = dat)
-summary(ModelProcess2) #PE Significant
+anova(AControl2, ModelPE2) #Model 2 has significant differences
+#When controlling for external factors, P-E Process significantly predict DV2
 
-anova(AControl2, ModelPE2, ModelContext2, ModelProcess2) #Model Context has the most meaningful changes
-#When controlling for Individual differences, and context factors, P-E Model significantly predict DV2
-
-
-
-########DV3 Sustainability########
-AControl3 <- lm(DV3~ AgentTotal, data = dat) #Control for agent differences
+###DV3#######
+AControl3 <- lm(DV3~ IV1+IV3+IV4+IV5+IV6+IV7, data = dat) #Control for context differences
 summary(AControl3)
 
-ModelPE3 <- lm(DV3~AgentTotal + PETotal, data = dat)
+ModelPE3 <- lm(DV3~IV1+IV3+IV4+IV5+IV6+IV7 + PETotal, data = dat)
 summary(ModelPE3) #PE Significant
 
-ModelContext3 <- lm(DV3 ~ AgentTotal + ContextTotal + PETotal, data = dat)
-summary(ModelContext3) #PE significant
 
-ModelProcess3 <- lm(DV3 ~ AgentTotal + ContextTotal + ProcessQ30 + ProcessQ31 + PETotal, data = dat)
-summary(ModelProcess3) #PE Significant
+anova(AControl3, ModelPE3) #Model 2 has significant differences
+#When controlling for external factors, P-E Process significantly predict DV3
 
-anova(AControl3, ModelPE3, ModelContext3, ModelProcess3) #Model PE3 has the most meaningful changes
-#When controlling for Individual differences, P-E Model significantly predict DV3
+###DV4#######
+AControl4 <- lm(DV4~ IV1+IV3+IV4+IV5+IV6+IV7, data = dat) #Control for context differences
+summary(AControl4)
+
+ModelPE4 <- lm(DV4~IV1+IV3+IV4+IV5+IV6+IV7 + PETotal, data = dat)
+summary(ModelPE4) #PE Significant
 
 
-#Skip DV4 cause already significant
+anova(AControl4, ModelPE4) #Model 2 has significant differences
+#When controlling for external factors, P-E Process significantly predict DV1
 
 
-#########DV5######
-AControl5 <- lm(DV5~ AgentTotal, data = dat) #Control for agent differences
+###DV5#######
+AControl5 <- lm(DV5~ IV1+IV3+IV4+IV5+IV6+IV7, data = dat) #Control for context differences
 summary(AControl5)
 
-ModelPE5 <- lm(DV5~AgentTotal + PETotal, data = dat)
-summary(ModelPE5) #PE not Significant
+ModelPE5 <- lm(DV5~IV1+IV3+IV4+IV5+IV6+IV7 + PETotal, data = dat)
+summary(ModelPE5) 
+#n.s.
 
-#P-E Model does not predict DV5
-#Maybe it's not a linear predictions
+#P-E Process does not predict DV5
 
-ggplot(dat, aes(x = PETotal, y = DV5)) +
-  geom_point() #does not look linear; run polynomial or ANOVA
-
-##Shall I try polynomial
-ModelPEDV5 <- lm(DV5 ~ PETotal, data = dat)
-summary(ModelPEDV5)
-#Not significant, moving onto polynomial
-ModelPEDV52 <- lm(DV5 ~ polym(PETotal, degree = 2, raw = TRUE), data = dat)
-summary(ModelPEDV52)
-
-#Significant
-ModelPEDV53 <- lm(DV5 ~ polym(PETotal, degree = 3, raw = TRUE), data = dat)
-summary(ModelPEDV53)
-#significant
-
-#Compare Models
-anova(ModelPEDV52, ModelPEDV52, ModelPEDV53) #signicant, stick with cubic
-
-#Plot
-ggplot(dat, aes(x= PETotal, y = DV5)) +
-  geom_point()+
-  stat_smooth(method='lm', formula = y ~ poly(x, 3), size =1) +
-  xlab('PE') +
-  ylab('DV5')
-# I guess PE has nothing to do with DV5
-
-#########DV6##############
-#Also significant but I forgot
-AControl6 <- lm(DV6~ AgentTotal, data = dat) #Control for agent differences
-summary(AControl6)
-
-ModelPE6 <- lm(DV6~AgentTotal + PETotal, data = dat)
-summary(ModelPE6) #PE Significant
-
-ModelContext6 <- lm(DV6 ~ AgentTotal + ContextTotal + PETotal, data = dat)
-summary(ModelContext6) #PE significant
-
-ModelProcess6 <- lm(DV6 ~ AgentTotal + ContextTotal + ProcessQ30 + ProcessQ31 + PETotal, data = dat)
-summary(ModelProcess6) #PE Significant
-
-anova(AControl6, ModelPE6, ModelContext6, ModelProcess6) #Model Context has the most meaningful changes
-#When controlling for Individual differences, and context factors, P-E Model significantly predict DV6
-
-
-###########DV8 QualiGen Eff###############3
-
-#Run with PE Quant
-
-AControl8 <- lm(DV8_QualiGenEff~ AgentTotal, data = dat) #Control for agent differences
-summary(AControl8)
-
-ModelPE8 <- lm(DV8_QualiGenEff~ AgentTotal + PETotal, data = dat)
-summary(ModelPE8) #PE not Significant
-
-ModelContext8 <- lm(DV8_QualiGenEff ~ AgentTotal + ContextTotal + PETotal, data = dat)
-summary(ModelContext8) #PE not significant
-
-ModelProcess8 <- lm(DV8_QualiGenEff ~ AgentTotal + ContextTotal + ProcessQ30 + ProcessQ31 + PETotal, data = dat)
-summary(ModelProcess8) #PE not Significant
-
-#PE Does not predict this
-
-#Run with PE Qual
-AControl82 <- lm(DV8_QualiGenEff~ AgentTotal, data = dat) #Control for agent differences
-summary(AControl82)
-
-ModelPE82 <- lm(DV8_QualiGenEff~ AgentTotal + DV7_QualiPE, data = dat)
-summary(ModelPE82) #PE not Significant
-
-ModelContext82 <- lm(DV8_QualiGenEff ~ AgentTotal + ContextTotal + DV7_QualiPE, data = dat)
-summary(ModelContext82) #PE not significant
-
-
-###########DV9 QualiSustain###############3
-AControl9 <- lm(DV9_QualiSustain~ AgentTotal, data = dat) #Control for agent differences
-summary(AControl9)
-
-ModelPE9 <- lm(DV9_QualiSustain~ AgentTotal + PETotal, data = dat)
-summary(ModelPE9) #PE not Significant
+## DV Skip because already significant####
+#This is more promising than ANCOVA
 
 
 
-#when run for qualitative
-AControl92 <- lm(DV9_QualiSustain~ AgentTotal, data = dat) #Control for agent differences
-summary(AControl92)
+#####################
+#Two-Way ANOVA
+#####################
 
-ModelPE92 <- lm(DV9_QualiSustain~ AgentTotal + DV7_QualiPE, data = dat)
-summary(ModelPE92) #PE Significant
+#Create new categorical variables for IV1, IV3, IV4, IV5, and IV6, and IV7 to work with PE Group
+#Cut at the mean
 
-cor.test(dat$DV7_QualiPE, dat$DV9_QualiSustain)
-#highly significant, p <.001; r = .65
+#Agent Total
+summary(dat$IV1) #4.46
+dat$IV1Di <- cut(dat$IV1,
+                   breaks = c(-Inf, 4.46, Inf),
+                   levels = c(1,2),
+                   labels = c("L", "H"))
+
+summary(dat$IV1Di) 
+
+#IV3
+summary(dat$IV3) #4.03
+dat$IV3Di <- cut(dat$IV3,
+                        breaks = c(-Inf, 4.03, Inf),
+                        levels = c(1,2),
+                        labels = c("W", "E"))
+
+#IV4
+summary(dat$IV4) #3.84
+dat$IV4Di <- cut(dat$IV4,
+                 breaks = c(-Inf, 3.84, Inf),
+                 levels = c(1,2),
+                 labels = c("W", "E"))
+
+#IV5
+summary(dat$IV5) #4.03
+dat$IV5Di <- cut(dat$IV5,
+                 breaks = c(-Inf, 4.03, Inf),
+                 levels = c(1,2),
+                 labels = c("H", "L")) #lower scores higher demands
+
+#IV6
+summary(dat$IV6) #4.37
+dat$IV6Di <- cut(dat$IV6,
+                 breaks = c(-Inf, 4.37, Inf),
+                 levels = c(1,2),
+                 labels = c("L", "T"))
+
+#IV7
+summary(dat$IV7) #4.51
+dat$IV7Di <- cut(dat$IV7,
+                 breaks = c(-Inf, 4.51, Inf),
+                 levels = c(1,2),
+                 labels = c("L", "H"))
+
+#DV7_QualiPE
+summary(dat$DV7_QualiPE) #as expected, it is pretty low
+#also do not have enough people to run 2 way ANOVA 
 
 
+############  DV1 #############
+
+##### IV1xPE
+lmIV11 <- lm(DV1~PEGroup*IV1Di, data = dat, weights = PEWts)
+summary(lmIV11)
+#n.s.
+#No interaction here
+
+##### IV3 x PE
+lmIV31 <- lm(DV1~PEGroup*IV3Di, data = dat, weights = PEWts)
+summary(lmIV31)
+#n.s.
+
+##### IV4 x PE
+lmIV41 <- lm(DV1~PEGroup*IV4Di, data = dat, weights = PEWts)
+summary(lmIV41)
+#n.s.
+
+##### IV5 x PE
+lmIV51 <- lm(DV1~PEGroup*IV5Di, data = dat, weights = PEWts)
+summary(lmIV51)
+#significant, but seems like main effect, not interaction
+Anova(lmIV51, type = 3)
+#n.s. for interaction
+
+
+##### IV6 x PE
+lmIV61 <- lm(DV1~PEGroup*IV6Di, data = dat,weights = PEWts)
+summary(lmIV61)
+#n.s.
+
+##### IV7 x PE
+lmIV71 <- lm(DV1~PEGroup*IV7Di, data = dat, weights = PEWts)
+summary(lmIV71)
+#n.s.
+
+
+############  DV2 #############
+
+##### IV1xPE
+lmIV12 <- lm(DV2~PEGroup*IV1Di, data = dat, weights = PEWts)
+summary(lmIV12)
+#n.s.
+#No interaction here
+
+##### IV3 x PE
+lmIV32 <- lm(DV2~PEGroup*IV3Di, data = dat, weights = PEWts)
+summary(lmIV32)
+#Significant, main effect for IV3
+Anova(lmIV32, type = 3)
+
+##### IV4 x PE
+lmIV42 <- lm(DV2~PEGroup*IV4Di, data = dat, weights = PEWts)
+summary(lmIV42)
+#ns
+
+##### IV5 x PE
+lmIV52 <- lm(DV2~PEGroup*IV5Di, data = dat, weights = PEWts)
+summary(lmIV52)
+#n.s.
+
+
+##### IV6 x PE
+lmIV62 <- lm(DV2~PEGroup*IV6Di, data = dat, weights = PEWts)
+summary(lmIV62)
+#n.s.
+
+##### IV7 x PE
+lmIV72 <- lm(DV2~PEGroup*IV7Di, data = dat, weights = PEWts)
+summary(lmIV72)
+#n.s.
+
+############  DV3 #############
+
+##### IV1 x PE
+lmIV13 <- lm(DV3~PEGroup*IV1Di, data = dat,weights = PEWts)
+summary(lmIV13)
+#significant but main effect?
+Anova(lmIV13, type = 3)
+#yep, just main effect
+
+##### IV3 x PE
+lmIV33 <- lm(DV3~PEGroup*IV3Di, data = dat, weights = PEWts)
+summary(lmIV33)
+#n.s.
+
+##### IV4 x PE
+lmIV43 <- lm(DV3~PEGroup*IV4Di, data = dat, weights = PEWts)
+summary(lmIV43)
+#n.s.
+
+##### IV5 x PE
+lmIV53 <- lm(DV3~PEGroup*IV5Di, data = dat, weights = PEWts)
+summary(lmIV53)
+#n.s.
+
+
+##### IV6 x PE
+lmIV63 <- lm(DV3~PEGroup*IV6Di, data = dat, weights = PEWts)
+summary(lmIV63)
+#n.s.
+
+##### IV7 x PE
+lmIV73 <- lm(DV3~PEGroup*IV7Di, data = dat, weights = PEWts)
+summary(lmIV73)
+#n.s.
+
+
+############  DV4 #############
+
+##### IV1 x PE
+lmIV14 <- lm(DV4~PEGroup*IV1Di, data = dat, weights = PEWts)
+summary(lmIV14)
+#n.s.
+
+##### IV3 x PE
+lmIV34 <- lm(DV4~PEGroup*IV3Di, data = dat, weights = PEWts)
+summary(lmIV34)
+#n.s.
+
+##### IV4 x PE
+lmIV44 <- lm(DV4~PEGroup*IV4Di, data = dat, weights = PEWts)
+summary(lmIV44)
+#n.s.
+
+##### IV5 x PE
+lmIV54 <- lm(DV4~PEGroup*IV5Di, data = dat, weights = PEWts)
+summary(lmIV54)
+#Significant, but not for interaction
+
+
+##### IV6 x PE
+lmIV64 <- lm(DV4~PEGroup*IV6Di, data = dat, weights = PEWts)
+summary(lmIV64)
+#n.s.
+
+##### IV7 x PE
+lmIV74 <- lm(DV4~PEGroup*IV7Di, data = dat, weights = PEWts)
+summary(lmIV74)
+Anova(lmIV74)
+#n.s.
+
+############  DV5 #############
+
+##### IV1 x PE
+lmIV15 <- lm(DV5~PEGroup*IV1Di, data = dat, weights = PEWts)
+summary(lmIV15)
+#n.s.
+
+##### IV3 x PE
+lmIV35 <- lm(DV5~PEGroup*IV3Di, data = dat, weights = PEWts)
+summary(lmIV35)
+#n.s.
+
+##### IV4 x PE
+lmIV45 <- lm(DV5~PEGroup*IV4Di, data = dat, weights = PEWts)
+summary(lmIV45)
+#n.s.
+
+
+##### IV5 x PE
+lmIV55 <- lm(DV5~PEGroup*IV5Di, data = dat, weights = PEWts)
+summary(lmIV55)
+#n.s.
+
+
+##### IV6 x PE
+lmIV65 <- lm(DV5~PEGroup*IV6Di, data = dat)
+summary(lmIV65)
+#n.s.
+
+##### IV7 x PE
+lmIV75 <- lm(DV5~PEGroup*IV7Di, data = dat)
+summary(lmIV75)
+#Interaction is significant
+Anova(lmIV75, type = 3) 
+#interaction no longer significant
+
+############  DV6 #############
+
+##### IV1 x PE
+lmIV16 <- lm(DV6~PEGroup*IV1Di, data = dat)
+summary(lmIV16)
+#Significant but not interaction
+
+##### IV3 x PE
+lmIV36 <- lm(DV6~PEGroup*IV3Di, data = dat)
+summary(lmIV36)
+#Significant but not interaction
+Anova(lmIV36, type = 3)
+
+##### IV4 x PE
+lmIV46 <- lm(DV6~PEGroup*IV4Di, data = dat)
+summary(lmIV46)
+#Significant w interaction
+Anova(lmIV46, type = 3)
+#not anymore
+
+##### IV5 x PE Contextual Challenge & Demands
+lmIV56 <- lm(DV6~PEGroup*IV5Di, data = dat)
+summary(lmIV56)
+#Significant and there might be and interaction
+Anova(lmIV56)
+#Yesss there is an interaction effect finally
+
+#Create interaction plot
+emm56 <- emmeans(object = lmIV56,
+                 specs = ~PEGroup:IV5Di)
+emmip(object = emm56,
+     formula = PEGroup~IV5Di,
+     CIs = TRUE)
+
+#In low contextual challenge and demand, prescriptive is the most efficient 
+#while Elicitive is the least
+#In high contextual challenge and demand, the efficiency is not different among approaches
+
+##### IV6 x PE 
+lmIV66 <- lm(DV6~PEGroup*IV6Di, data = dat)
+summary(lmIV66)
+#Significant 
+Anova(lmIV66, type = 3)
+#interaction significant at the p <.01 level
+
+#Create interaction plot
+emm66 <- emmeans(object = lmIV66,
+                 specs = ~PEGroup:IV6Di)
+emmip(object = emm66,
+      formula = PEGroup~IV6Di,
+      CIs = TRUE)
+#in low cultural constraints with looser norms
+# prescriptive methods and hybrid are more efficient than elicitive
+#in high cultural constraints with tighter norms, elicitive is the most efficient
+
+
+
+##### IV7 x PE 
+lmIV76 <- lm(DV6~PEGroup*IV7Di, data = dat)
+summary(lmIV76)
+#Significant 
+Anova(lmIV76, type = 3)
+#interaction significant at the p =.05 level
+
+#Create interaction plot
+emm76 <- emmeans(object = lmIV76,
+                 specs = ~PEGroup:IV7Di)
+emmip(object = emm76,
+      formula = PEGroup~IV7Di,
+      CIs = TRUE)
+#So confused about this
+#so when Agent has high tolerance for ambiguity, elicitive process would be much less efficient
+#compared to hybrid and prescriptive
+# Actually nvm it makes sense now; they are just too chill
+
+
+############  DV8 #############
+
+##### IV1 x PE
+lmIV18 <- lm(DV8_QualiGenEff~PEGroup*IV1Di, data = dat)
+summary(lmIV18)
+#n.s.
+
+##### IV3 x PE
+lmIV38 <- lm(DV8_QualiGenEff~PEGroup*IV3Di, data = dat)
+summary(lmIV38)
+#n.s.
+
+##### IV4 x PE
+lmIV48 <- lm(DV8_QualiGenEff~PEGroup*IV4Di, data = dat)
+summary(lmIV48)
+#n.s.
+
+
+##### IV5 x PE
+lmIV58 <- lm(DV8_QualiGenEff~PEGroup*IV5Di, data = dat)
+summary(lmIV58)
+#n.s.
+
+
+##### IV6 x PE
+lmIV68 <- lm(DV8_QualiGenEff~PEGroup*IV6Di, data = dat)
+summary(lmIV68)
+#n.s.
+
+##### IV7 x PE
+lmIV78 <- lm(DV8_QualiGenEff~PEGroup*IV7Di, data = dat)
+summary(lmIV78)
+#Interaction might be significant
+Anova(lmIV78, type = 3) 
+#interaction is significant at p = .05
+
+#Create interaction plot
+emm78 <- emmeans(object = lmIV78,
+                 specs = ~PEGroup:IV7Di)
+emmip(object = emm78,
+      formula = ~PEGroup:IV7Di,
+      CIs = TRUE)
+#When agent has low tolerance for ambiguity
+#hybrid is significantly less effective than prescriptive or elicitive (coded)
+#when agent has high tolerance for ambiguity
+#hybrid or elicitive is coded to be much more effective
+
+
+############  DV9 #############
+
+##### IV1 x PE
+lmIV19 <- lm(DV9_QualiSustain~PEGroup*IV1Di, data = dat)
+summary(lmIV19)
+#n.s.
+
+##### IV3 x PE
+lmIV39 <- lm(DV9_QualiSustain~PEGroup*IV3Di, data = dat)
+summary(lmIV39)
+#n.s.
+
+##### IV4 x PE
+lmIV49 <- lm(DV9_QualiSustain~PEGroup*IV4Di, data = dat)
+summary(lmIV49)
+#n.s.
+
+
+##### IV5 x PE
+lmIV59 <- lm(DV9_QualiSustain~PEGroup*IV5Di, data = dat)
+summary(lmIV59)
+#n.s.
+
+
+##### IV6 x PE
+lmIV69 <- lm(DV9_QualiSustain~PEGroup*IV6Di, data = dat)
+summary(lmIV69)
+#n.s.
+
+##### IV7 x PE
+lmIV79 <- lm(DV9_QualiSustain~PEGroup*IV7Di, data = dat)
+summary(lmIV79)
+#n.s.
 
 
 
@@ -953,27 +1203,292 @@ cor.test(dat$DV7_QualiPE, dat$DV9_QualiSustain)
 #Moderation Analysis
 ##########################
 
-ModelPE12 <- lm(DV1~AgentTotal + PETotal + AgentTotal:PETotal, data = dat)
-summary(ModelPE12) #Interaction not significant, not a moderator for DV1
+#Running PE as a continuous variable 
 
-ModelPE22 <- lm(DV2~AgentTotal + PETotal + AgentTotal:PETotal, data = dat)
-summary(ModelPE22) #N.S
+####IV1
+ModelPE11 <- lm(DV1~IV1Di + PETotal + IV1Di:PETotal, data = dat)
+summary(ModelPE11) #Interaction not significant, not a moderator for DV1
 
-ModelPE32 <- lm(DV3~AgentTotal + PETotal + AgentTotal:PETotal, data = dat)
-summary(ModelPE32) #Interaction not significant, not a moderator for DV3
+ModelPE21 <- lm(DV2~IV1Di + PETotal + IV1Di:PETotal, data = dat)
+summary(ModelPE21) #N.S
 
-ModelPE42 <- lm(DV4~AgentTotal + PETotal + AgentTotal:PETotal, data = dat)
-summary(ModelPE42) #Interaction not significant, not a moderator for DV4
+ModelPE31 <- lm(DV3~IV1Di + PETotal + IV1Di:PETotal, data = dat)
+summary(ModelPE31) #Interaction not significant, not a moderator for DV3
 
-ModelPE52 <- lm(DV5~AgentTotal + PETotal + AgentTotal:PETotal, data = dat)
-summary(ModelPE52) #Interaction not significant, not a moderator for DV5
+ModelPE41 <- lm(DV4~IV1Di + PETotal + IV1Di:PETotal, data = dat)
+summary(ModelPE41) #Interaction not significant, not a moderator for DV4
 
-ModelPE62 <- lm(DV6~AgentTotal + PETotal + AgentTotal:PETotal, data = dat)
-summary(ModelPE62) #Interaction not significant, not a moderator for DV6
+ModelPE51 <- lm(DV5~IV1Di + PETotal + IV1Di:PETotal, data = dat)
+summary(ModelPE51) #Interaction not significant, not a moderator for DV5
+
+ModelPE61 <- lm(DV6~IV1Di + PETotal + IV1Di:PETotal, data = dat)
+summary(ModelPE61) #Interaction not significant, not a moderator for DV6
+
+ModelPE81 <- lm(DV8_QualiGenEff~IV1Di + PETotal + IV1Di:PETotal, data = dat)
+summary(ModelPE81)
+
+ModelPE91 <- lm(DV9_QualiSustain~IV1Di + PETotal + IV1Di:PETotal, data = dat)
+summary(ModelPE91)
+
+#IV1 does not have an effect on P-E Approach to effectiveness
+
+####IV3
+ModelPE13 <- lm(DV1~IV3Di + PETotal + IV3Di:PETotal, data = dat)
+summary(ModelPE13) #Interaction not significant, not a moderator for DV1
+
+ModelPE23 <- lm(DV2~IV3Di + PETotal + IV3Di:PETotal, data = dat)
+summary(ModelPE23) #N.S
+
+ModelPE33 <- lm(DV3~IV3Di + PETotal + IV3Di:PETotal, data = dat)
+summary(ModelPE33) #Interaction not significant, not a moderator for DV3
+
+ModelPE43 <- lm(DV4~IV3Di + PETotal + IV3Di:PETotal, data = dat)
+summary(ModelPE43) #Interaction not significant, not a moderator for DV4
+
+ModelPE53 <- lm(DV5~IV3Di + PETotal + IV3Di:PETotal, data = dat)
+summary(ModelPE53) #Interaction not significant, not a moderator for DV5
+
+ModelPE63 <- lm(DV6~IV3Di + PETotal + IV3Di:PETotal, data = dat)
+summary(ModelPE63) #Interaction  significant finally at the p <.01 lvl
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV6,
+                color = IV3Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Efficiency",
+       color = "Stakeholder Value Orientation") +
+  geom_smooth(method = "lm") #turn it into lines
+#if want to remove the SE shadows, add se = F after method = "lm"
+#If stakeholder have more western values, prescriptive methods are more efficient
+#if stakeholder have more eastern values, elicitive are more efficient
 
 
-#In Conclusion, definitely not a moderator; #it's another independent variable
+ModelPE83 <- lm(DV8_QualiGenEff~IV3Di + PETotal + IV3Di:PETotal, data = dat)
+summary(ModelPE83) #ns
 
+ModelPE93 <- lm(DV9_QualiSustain~IV3Di + PETotal + IV3Di:PETotal, data = dat)
+summary(ModelPE91) #ns
+
+####IV4
+ModelPE14 <- lm(DV1~IV4Di + PETotal + IV4Di:PETotal, data = dat)
+summary(ModelPE14) #Interaction not significant, not a moderator for DV1
+
+ModelPE24 <- lm(DV2~IV4Di + PETotal + IV4Di:PETotal, data = dat)
+summary(ModelPE24) #N.S
+
+ModelPE34 <- lm(DV3~IV4Di + PETotal + IV4Di:PETotal, data = dat)
+summary(ModelPE34) #Interaction not significant, not a moderator for DV3
+
+ModelPE44 <- lm(DV4~IV4Di + PETotal + IV4Di:PETotal, data = dat)
+summary(ModelPE44) #Interaction not significant, not a moderator for DV4
+
+ModelPE54 <- lm(DV5~IV4Di + PETotal + IV4Di:PETotal, data = dat)
+summary(ModelPE54) #Interaction not significant, not a moderator for DV5
+
+ModelPE64 <- lm(DV6~IV4Di + PETotal + IV4Di:PETotal, data = dat)
+summary(ModelPE64) #Interaction is significant at p<.01 level
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV6,
+                color = IV4Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Efficiency",
+       color = "Agent Value Orientation") +
+  geom_smooth(method = "lm") #turn it into lines
+#If agent have more western values, prescriptive methods are more efficient
+#if agent have more eastern values,there is no significant difference in approach and outcomes
+#although elicitive is slightly better
+
+ModelPE84 <- lm(DV8_QualiGenEff~IV4Di + PETotal + IV4Di:PETotal, data = dat)
+summary(ModelPE84) #ns
+
+ModelPE94 <- lm(DV9_QualiSustain~IV4Di + PETotal + IV4Di:PETotal, data = dat)
+summary(ModelPE94) #ns
+
+####IV5
+ModelPE15 <- lm(DV1~IV5Di + PETotal + IV5Di:PETotal, data = dat)
+summary(ModelPE15) #Interaction is significant at p =.04
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV1,
+                color = IV5Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Self-Rated Effectiveness",
+       color = "Contextual Challenges & Demands") +
+  geom_smooth(method = "lm",
+              se = F) #turn it into lines
+#In context with low demand and challenges, prescriptive methods are more effective
+#in context with high demand and challenges, elicitive methods are more effective
+
+ModelPE25 <- lm(DV2~IV5Di + PETotal + IV5Di:PETotal, data = dat)
+summary(ModelPE25) #N.S
+
+ModelPE35 <- lm(DV3~IV5Di + PETotal + IV5Di:PETotal, data = dat)
+summary(ModelPE35) #Interaction not significant, not a moderator for DV3
+
+ModelPE45 <- lm(DV4~IV5Di + PETotal + IV5Di:PETotal, data = dat)
+summary(ModelPE45) #Interaction not significant, not a moderator for DV4
+
+ModelPE55 <- lm(DV5~IV5Di + PETotal + IV5Di:PETotal, data = dat)
+summary(ModelPE55) #Interaction not significant, not a moderator for DV5
+
+ModelPE65 <- lm(DV6~IV5Di + PETotal + IV5Di:PETotal, data = dat)
+summary(ModelPE65) 
+#Interaction significant at p <.01, but already got from 2 way anova
+
+ModelPE85 <- lm(DV8_QualiGenEff~IV5Di + PETotal + IV5Di:PETotal, data = dat)
+summary(ModelPE85) #ns
+
+ModelPE95 <- lm(DV9_QualiSustain~IV5Di + PETotal + IV5Di:PETotal, data = dat)
+summary(ModelPE95) #ns
+
+
+####IV6
+ModelPE16 <- lm(DV1~IV6Di + PETotal + IV6Di:PETotal, data = dat)
+summary(ModelPE16) #Interaction not significant, not a moderator for DV1
+
+ModelPE26 <- lm(DV2~IV6Di + PETotal + IV6Di:PETotal, data = dat)
+summary(ModelPE26) #N.S
+
+ModelPE36 <- lm(DV3~IV6Di + PETotal + IV6Di:PETotal, data = dat)
+summary(ModelPE36) #Interaction not significant, not a moderator for DV3
+
+ModelPE46 <- lm(DV4~IV6Di + PETotal + IV6Di:PETotal, data = dat)
+summary(ModelPE46) #Interaction not significant, not a moderator for DV4
+
+ModelPE56 <- lm(DV5~IV6Di + PETotal + IV6Di:PETotal, data = dat)
+summary(ModelPE56) #Interaction not significant, not a moderator for DV5
+
+ModelPE66 <- lm(DV6~IV6Di + PETotal + IV6Di:PETotal, data = dat)
+summary(ModelPE66) #Interaction significant, already knew from 2 way anova
+
+ModelPE86 <- lm(DV8_QualiGenEff~IV6Di + PETotal + IV6Di:PETotal, data = dat)
+summary(ModelPE86) #ns
+
+ModelPE96 <- lm(DV9_QualiSustain~IV6Di + PETotal + IV6Di:PETotal, data = dat)
+summary(ModelPE96) #ns
+
+####IV7
+ModelPE17 <- lm(DV1~IV7Di + PETotal + IV7Di:PETotal, data = dat)
+summary(ModelPE17) #Interaction significant at the p <.001 lvl
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV1,
+                color = IV7Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Self-Rated Effectiveness",
+       color = "Agent Tolerance for Ambiguity") +
+  geom_smooth(method = "lm",
+              se = F) #turn it into lines
+#When agent has low TA, prescriptive is the most effective
+#when agent has high TA, elicitive is the most effective
+
+ModelPE27 <- lm(DV2~IV7Di + PETotal + IV7Di:PETotal, data = dat)
+summary(ModelPE27) #Significant at the p <.001 level
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV2,
+                color = IV7Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Self-Rated Cultural Appropriateness",
+       color = "Agent Tolerance for Ambiguity") +
+  geom_smooth(method = "lm",
+              se = F) #turn it into lines
+#When agent has low TA, prescriptive is the most culturally appropriate
+#when agent has high TA, elicitive is the most culturally appropriate
+
+ModelPE37 <- lm(DV3~IV7Di + PETotal + IV7Di:PETotal, data = dat)
+summary(ModelPE37) #Interaction is significant at p <.01 level
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV3,
+                color = IV7Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Sustainability",
+       color = "Agent Tolerance for Ambiguity") +
+  geom_smooth(method = "lm",
+              se = F) #turn it into lines
+#When agent has low TA, prescriptive is more sustainable
+#when agent has high TA, elicitive is more sustainable
+
+ModelPE47 <- lm(DV4~IV7Di + PETotal + IV7Di:PETotal, data = dat)
+summary(ModelPE47) #Significant at the p <.01 level
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV4,
+                color = IV7Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Cultural Sensitivity",
+       color = "Agent Tolerance for Ambiguity") +
+  geom_smooth(method = "lm",
+              se = F) #turn it into lines
+#When agent has low TA, prescriptive is more culturally sensitive
+#when agent has high TA, elicitive is more culturally sensitive
+
+ModelPE57 <- lm(DV5~IV7Di + PETotal + IV7Di:PETotal, data = dat)
+summary(ModelPE57) #Significant, not a moderator for DV5
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV5,
+                color = IV7Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Cost Effectiveness",
+       color = "Agent Tolerance for Ambiguity") +
+  geom_smooth(method = "lm",
+              se = F) #turn it into lines
+#When agent has low TA, prescriptive is more cost effective
+#when agent has high TA, elicitive is more cost effective, but not that much of difference
+
+ModelPE67 <- lm(DV6~IV7Di + PETotal + IV7Di:PETotal, data = dat)
+summary(ModelPE67) #Significant, already with 2 way ANOVA
+
+ModelPE87 <- lm(DV8_QualiGenEff~IV7Di + PETotal + IV7Di:PETotal, data = dat)
+summary(ModelPE87) #significant at the p <.001 level
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV8_QualiGenEff,
+                color = IV7Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Coded Effectiveness",
+       color = "Agent Tolerance for Ambiguity") +
+  geom_smooth(method = "lm",
+              se = F) #turn it into lines
+#When agent has low TA, prescriptive is coded to be slightly more effective
+#when agent has high TA, elicitive is coded to be much more effective
+
+ModelPE97 <- lm(DV9_QualiSustain~IV7Di + PETotal + IV7Di:PETotal, data = dat)
+summary(ModelPE97) #significant at the p = .03 lvl
+
+#Create interaction plot
+ggplot(dat, aes(x = PETotal,
+                y = DV9_QualiSustain,
+                color = IV7Di)) +
+  theme_bw() +
+  labs(x = "P to E",
+       y = "Coded Sustainability",
+       color = "Agent Tolerance for Ambiguity") +
+  geom_smooth(method = "lm",
+              se = F) #turn it into lines
+#When agent has low TA, prescriptive is coded to be more sustainable
+#when agent has high TA, elicitive is coded to be more sustainable
 
 
 
