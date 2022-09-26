@@ -1,7 +1,7 @@
 library(haven)
 library(tidyverse)
 library(dplyr)
-dat <- read_sav(file = file.choose())
+dat <- read_sav("~/Desktop/Academics/PhD Research/CCA:CCO/CCA Instructor Survey/Survey 2 for R.sav")
 
 ####################
 #Data Transformation
@@ -278,6 +278,7 @@ dat$IV4 <- ((dat$AgentQ79 + dat$AgentQ80)/2)
 
 #IV5 = Contextual Challenges & Demands
 dat$IV5 <- ((dat$ContextQ23+dat$ContextQ25+dat$StakeQ62)/3)
+dat$IV5 <- (8-dat$IV5) #reverse coded again
 
 #IV6 = Cultural Constraints & Tightness
 dat$IV6 <- ((dat$ContextQ26+dat$ContextQ27+dat$ContextQ28)/3)
@@ -293,6 +294,7 @@ dat$IV7 <- ((dat$AgentQ73+dat$AgentQ76)/2)
 #Correlations
 library(Hmisc)
 datcorr <- select(dat, IV1, IV3, IV4, IV5, IV6, IV7, PETotal)
+
 
 # Correlations with P values to see significance
 correlations <- rcorr(as.matrix(select(datcorr, 1:6, 7)))
@@ -312,8 +314,8 @@ cor.test(dat$IV3, dat$PETotal) # p<.01, r = -.28
 
 cor.test(dat$IV4, dat$PETotal) #n.s.
 
-cor.test(dat$IV5, dat$PETotal) # p <.01, r = -.29
-# The less challenging and demanding the context is (mono-cultural, have no functional systems, and local decision making are unjust)
+cor.test(dat$IV5, dat$PETotal) # p <.01, r = .29
+# The more challenging and demanding the context is (mono-cultural, have no functional systems, and local decision making are unjust)
 # the more likely an elicitive approach will be used. 
 
 cor.test(dat$IV6, dat$PETotal) # p<.001, r = -.40
@@ -579,7 +581,7 @@ cor(dat2, use = "complete.obs") #tell it to ignore NA variables
 corrplot(correlations2$r, type = "upper", order = "original", 
          p.mat = correlations$r, sig.level = 0.05, insig = "blank")
 corrplot(cor(dat2, use = "complete.obs"))
-#Seems like most IVs are somewhat correlated with the DVs so we can run hierarchical regression
+#Seems like most IVs are somewhat correlated with the DVs so we can run ANCOVA
 
 
 ###########Models################
@@ -814,6 +816,7 @@ summary(ModelPE5)
 
 #Agent Total
 summary(dat$IV1) #4.46
+sd(dat$IV1, na.rm=TRUE)
 dat$IV1Di <- cut(dat$IV1,
                    breaks = c(-Inf, 4.46, Inf),
                    levels = c(1,2),
@@ -823,6 +826,7 @@ summary(dat$IV1Di)
 
 #IV3
 summary(dat$IV3) #4.03
+sd(dat$IV3, na.rm=TRUE)
 dat$IV3Di <- cut(dat$IV3,
                         breaks = c(-Inf, 4.03, Inf),
                         levels = c(1,2),
@@ -830,6 +834,7 @@ dat$IV3Di <- cut(dat$IV3,
 
 #IV4
 summary(dat$IV4) #3.84
+sd(dat$IV4, na.rm=TRUE)
 dat$IV4Di <- cut(dat$IV4,
                  breaks = c(-Inf, 3.84, Inf),
                  levels = c(1,2),
@@ -837,6 +842,7 @@ dat$IV4Di <- cut(dat$IV4,
 
 #IV5
 summary(dat$IV5) #4.03
+sd(dat$IV5, na.rm=TRUE)
 dat$IV5Di <- cut(dat$IV5,
                  breaks = c(-Inf, 4.03, Inf),
                  levels = c(1,2),
@@ -844,6 +850,7 @@ dat$IV5Di <- cut(dat$IV5,
 
 #IV6
 summary(dat$IV6) #4.37
+sd(dat$IV6, na.rm=TRUE)
 dat$IV6Di <- cut(dat$IV6,
                  breaks = c(-Inf, 4.37, Inf),
                  levels = c(1,2),
@@ -851,6 +858,7 @@ dat$IV6Di <- cut(dat$IV6,
 
 #IV7
 summary(dat$IV7) #4.51
+sd(dat$IV7, na.rm=TRUE)
 dat$IV7Di <- cut(dat$IV7,
                  breaks = c(-Inf, 4.51, Inf),
                  levels = c(1,2),
@@ -1073,6 +1081,15 @@ emmip(object = emm56,
      formula = PEGroup~IV5Di,
      CIs = TRUE)
 
+#Compute some summary stats
+library(dplyr)
+group_by(dat, IV5Di, PEGroup) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(DV6, na.rm = TRUE),
+    sd = sd(DV6, na.rm = TRUE)
+  )
+
 #In low contextual challenge and demand, prescriptive is the most efficient 
 #while Elicitive is the least
 #In high contextual challenge and demand, the efficiency is not different among approaches
@@ -1090,9 +1107,17 @@ emm66 <- emmeans(object = lmIV66,
 emmip(object = emm66,
       formula = PEGroup~IV6Di,
       CIs = TRUE)
+
+group_by(dat, IV6Di, PEGroup) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(DV6, na.rm = TRUE),
+    sd = sd(DV6, na.rm = TRUE)
+  )
 #in low cultural constraints with looser norms
 # prescriptive methods and hybrid are more efficient than elicitive
 #in high cultural constraints with tighter norms, elicitive is the most efficient
+
 
 
 
@@ -1109,6 +1134,13 @@ emm76 <- emmeans(object = lmIV76,
 emmip(object = emm76,
       formula = PEGroup~IV7Di,
       CIs = TRUE)
+
+group_by(dat, IV7Di, PEGroup) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(DV6, na.rm = TRUE),
+    sd = sd(DV6, na.rm = TRUE)
+  )
 #So confused about this
 #so when Agent has high tolerance for ambiguity, elicitive process would be much less efficient
 #compared to hybrid and prescriptive
@@ -1157,6 +1189,13 @@ emm78 <- emmeans(object = lmIV78,
 emmip(object = emm78,
       formula = ~PEGroup:IV7Di,
       CIs = TRUE)
+
+group_by(dat, IV7Di, PEGroup) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(DV8_QualiGenEff, na.rm = TRUE),
+    sd = sd(DV8_QualiGenEff, na.rm = TRUE)
+  )
 #When agent has low tolerance for ambiguity
 #hybrid is significantly less effective than prescriptive or elicitive (coded)
 #when agent has high tolerance for ambiguity
@@ -1263,6 +1302,7 @@ ggplot(dat, aes(x = PETotal,
 #if want to remove the SE shadows, add se = F after method = "lm"
 #If stakeholder have more western values, prescriptive methods are more efficient
 #if stakeholder have more eastern values, elicitive are more efficient
+
 
 
 ModelPE83 <- lm(DV8_QualiGenEff~IV3Di + PETotal + IV3Di:PETotal, data = dat)
